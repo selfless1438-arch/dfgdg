@@ -98,22 +98,19 @@
     <ul id="taskList"></ul>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, orderBy, query }
+  <script type="module">import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, orderBy, query, serverTimestamp }
       from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-    // 🔥 Your Firebase config
     const firebaseConfig = {
-      apiKey: "AIzaSyBzIxDGwchnYLNO-SXSTFHCXYYWrrL-xlI",
-      authDomain: "ypdfg-535c7.firebaseapp.com",
-      projectId: "ypdfg-535c7",
-      storageBucket: "ypdfg-535c7.firebasestorage.app",
-      messagingSenderId: "510197628874",
-      appId: "1:510197628874:web:0caa07654b7f6c411a1933"
+      apiKey: "AIzaSyBiTiBOGhjO1x1XWoAw58e8W4BSxA8hg2M",
+      authDomain: "shared-todo-49ae1.firebaseapp.com",
+      projectId: "shared-todo-49ae1",
+      storageBucket: "shared-todo-49ae1.appspot.com",
+      messagingSenderId: "1029604377368",
+      appId: "1:1029604377368:web:713f5be9cd4a266bc4546d"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
@@ -126,8 +123,12 @@
     addBtn.addEventListener('click', async () => {
       const text = taskInput.value.trim();
       if (!text) return alert("Enter a task first!");
-      await addDoc(tasksRef, { text, completed: false, createdAt: Date.now() });
+      await addDoc(tasksRef, { text, completed: false, createdAt: serverTimestamp() });
       taskInput.value = '';
+    });
+
+    taskInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addBtn.click();
     });
 
     // Render tasks live
@@ -139,9 +140,9 @@
         const li = document.createElement('li');
         li.className = data.completed ? 'completed' : '';
         li.innerHTML = `
-        <span style="flex:1;cursor:pointer" data-id="${docSnap.id}">${data.text}</span>
-        <button class="delete-btn" data-id="${docSnap.id}">X</button>
-      `;
+      <span style="flex:1;" data-id="${docSnap.id}">${data.text}</span>
+      <button class="delete-btn" data-id="${docSnap.id}">X</button>
+    `;
         taskList.appendChild(li);
       });
     });
@@ -152,17 +153,14 @@
       if (!id) return;
 
       if (e.target.tagName === 'SPAN') {
-        // Toggle completed
         const taskDoc = doc(db, 'tasks', id);
         const isCompleted = e.target.parentElement.classList.contains('completed');
         await updateDoc(taskDoc, { completed: !isCompleted });
       } else if (e.target.classList.contains('delete-btn')) {
-        // Delete
         await deleteDoc(doc(db, 'tasks', id));
       }
     });
   </script>
-
 </body>
 
 </html>
